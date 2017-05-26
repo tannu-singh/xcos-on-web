@@ -304,7 +304,7 @@ function AUTOMAT() {
          Minitial: ["Initial Mode", this.Minitial.toString()],
          NX: ["Number of continuous-time states", this.NX.toString()],
          X0: ["Continuous-time states initial values", sci2exp(this.X0)],
-         XP: ["Xproperties of continuous-time states in each Mode", this.XP.toString().replace(/,/g, ";")],
+         XP: ["Xproperties of continuous-time states in each Mode", sci2exp(this.XP)],
          C1: ["Column 1", sci2exp(this.C1)],
          C2: ["Column 2", sci2exp(this.C2)]
        };
@@ -8566,10 +8566,10 @@ function MATMUL() {
 }
 
 function MATPINV() {
-
     MATPINV.prototype.define = function MATPINV() {
         this.function_name = "mat_pinv";
         this.funtyp = 4;
+        this.typ= 1;
 
         var model = scicos_model();
         model.sim = list(new ScilabString([this.function_name]), new ScilabDouble([this.funtyp]));
@@ -8602,10 +8602,31 @@ function MATPINV() {
 }
 
 function MATRESH() {
+    MATRESH.prototype.get = function MATRESH() {
+      var options= {
+       typ: ["Datatype(1=real double  2=Complex)", sci2exp(this.typ)],
+       l1: ["input size", this.l1.toString().replace(/,/g, " ")],
+       out: ["output size desired", this.out.toString().replace(/,/g, " ")]
+      };
+      return options;
+    }
+    MATRESH.prototype.set = function MATRESH() {
+ 
+        this.typ = parseInt((arguments[0]["typ"]));
+        this.l1= inverse(arguments[0]["l1"]);
+        this.out= inverse(arguments[0]["out"]); 
+        this.funtyp = 4;
+        this.x.graphics.exprs= new ScilabString([sci2exp(this.typ)] , [this.l1.toString().replace(/,/g, " ")], [this.out.toString().replace(/,/g, " ")]); 
+        this.x.model.sim = list(new ScilabString([this.function_name]), new ScilabDouble([this.funtyp]));
+        return new BasicBlock(this.x);
 
+    }
     MATRESH.prototype.define = function MATRESH() {
         this.function_name = "mat_reshape";
         this.funtyp = 4;
+        this.typ= 1;
+        this.l1= [1, 1];
+        this.out= [1, 1];
 
         var model = scicos_model();
         model.sim = list(new ScilabString([this.function_name]), new ScilabDouble([this.funtyp]));
@@ -8637,12 +8658,69 @@ function MATRESH() {
 }
 
 function MATSING() {
+    MATSING.prototype.get = function MATSING() {
+       var options={
+         typ: ["Datatype(1=real double  2=Complex)", sci2exp(this.typ)],
+         decomptyp: ["extraction type (1=lower  2=upper  3=diagonal)", sci2exp(this.decomptyp)]
+       };
+       return options;
+    }
+    MATSING.prototype.set = function MATSING() {
 
+        this.typ= parseInt((arguments[0]["typ"]));
+        this.decomptyp= parseInt((arguments[0]["decomptyp"]));
+        this.function_name = "mat_sing";
+        this.funtyp = 4;      
+                if (this.typ==1){
+                  if (this.decomptyp==1){
+                    this.x.model.in= new ScilabDouble([-1, -2]);
+                    this.x.model.out= new ScilabDouble([-1, 1]);
+                    this.x.model.outtyp= new ScilabDouble([1]);
+                    this.function_name="mat_sing"; }
+                  else{ 
+                     if (this.decomptyp==2){
+                    this.x.model.in= new ScilabDouble([-1 -2]);
+                    this.x.model.out= new ScilabDouble([[-1, -1], [-1, -2], [-2, -2]] );
+                    this.x.model.outtyp= new ScilabDouble([1, 1, 1]);
+                       this.function_name="mat_svd"; }
+                     else{
+                         message= "decomposition type is not supported" ;
+                         document.write(message); } }
+                      }
+                     else {
+                          if(this.typ==2) {
+                            if (this.decomptyp==1){
+                              this.x.model.in= new ScilabDouble([-1, -2]);
+                              this.x.model.out= new ScilabDouble([-1, 1]);
+                              this.x.model.outtyp= new ScilabDouble([1]);
+                              this.function_name="mat_sing"; }
+                            else{ 
+                              if (this.decomptyp==2){
+                                this.x.model.in= new ScilabDouble([-1, -2]);
+                                this.x.model.out= new ScilabDouble([[-1, -1], [-1, -2], [-2, -2]]);
+                                this.x.model.outtyp= new ScilabDouble([2 ,1, 2]);
+                                this.function_name="mat_svd"; }
+                              else{
+                                  message="decomposition type is not supported";
+                                  document.write(message);
+                                } }
+                        this.x.model.intyp = new ScilabDouble([2]);
+                       } 
+                       else{
+                             message= "Datatype not supported";
+                             document.write(message);
+                           } }    
+        this.x.model.sim = list(new ScilabString([this.function_name]), new ScilabDouble([this.funtyp]));
+        this.x.graphics.exprs = new ScilabString([sci2exp(this.typ)], [sci2exp(this.decomptyp)]);
+        return new BasicBlock(this.x);
+    }
     MATSING.prototype.define = function MATSING() {
         var model = scicos_model();
 
         this.function_name = "mat_sing";
         this.funtyp = 4;
+        this.typ = 1;
+        this.decomptyp= 1;
 
         model.sim = list(new ScilabString([this.function_name]), new ScilabDouble([this.funtyp]));
         model.in = new ScilabDouble([-1]);
@@ -8673,10 +8751,78 @@ function MATSING() {
     }
 }
 function MATSUM() {
+    MATSUM.prototype.get = function MATSUM() {
+       var options={
+ 
+         typ: ["Datatype(1=real double  2=Complex)", sci2exp(this.typ)],
+         decomptyp: ["Sum along (0=all 1=lines  2=Columns)", sci2exp(this.decomptyp)]
 
+       };
+       return options;
+    }
+    MATSUM.prototype.set = function MATSUM() {
+
+        this.typ= parseInt((arguments[0]["typ"]));
+        this.decomptyp= parseInt((arguments[0]["decomptyp"]));
+        this.funtyp = 4;   
+                if (this.typ==1){
+                  if (this.decomptyp==0){
+                    this.function_name="mat_sum"; 
+                    this.x.model.model.out = new ScilabDouble([1, 1]);
+                    }
+                  else{ 
+                     if (this.decomptyp==1){
+                       this.function_name="mat_suml"; 
+                       this.x.model.model.out = new ScilabDouble([-1, 1]);
+                    }
+                     else{
+                       if (this.decomptyp==2){
+                         this.function_name="mat_sumc"; 
+                         this.x.model.model.out = new ScilabDouble([1, -2]);
+                       }
+                       else{
+                         message= "decomposition type is not supported" ;
+                         document.write(message);} } }
+                        this.x.model.intyp = new ScilabDouble([1]);
+                        this.x.model.outtyp = new ScilabDouble([1]);
+                      }
+                     else {
+                          if(this.typ==2) {
+                            if (this.decomptyp==0){
+                              this.function_name="exttrilz";  
+                              this.x.model.model.out = new ScilabDouble([1, 1]);
+                            }
+                            else{ 
+                              if (this.decomptyp==1){
+                                this.function_name="exttriuz";  
+                                this.x.model.model.out = new ScilabDouble([-1, 1]);
+                              }
+                              else{
+                                if (this.decomptyp==2){
+                                  this.function_name="extdiagz"; 
+                                  this.x.model.model.out = new ScilabDouble([1, -2]);
+                                }                
+                                else{
+                                  message="decomposition type is not supported";
+                                  document.write(message);
+                                }} }
+                        this.x.model.intyp = new ScilabDouble([2]);
+                        this.x.model.outtyp = new ScilabDouble([2]);
+                       } 
+                       else{
+                             message= "Datatype not supported";
+                             document.write(message);
+                           } }      
+        this.x.model.sim = list(new ScilabString([this.function_name]), new ScilabDouble([this.funtyp]));
+        this.x.graphics.exprs = new ScilabString([sci2exp(this.typ)], [sci2exp(this.decomptyp)]);
+        return new BasicBlock(this.x);
+    }
     MATSUM.prototype.define = function MATSUM() {
         this.function_name = "mat_sum";
         this.funtyp = 4;
+        this.typ= 1;
+        this.decomptyp= 0;
+
 
         var model = scicos_model();
         model.sim = list(new ScilabString([this.function_name]), new ScilabDouble([this.funtyp]));
@@ -8708,9 +8854,11 @@ function MATSUM() {
 }
 
 function MATTRAN() {
-
     MATTRAN.prototype.define = function MATTRAN() {
 
+        this.typ= 1;
+        this.rule= 1;
+        this.function_name="mattran_m";
         var model = scicos_model();
         model.sim = list(new ScilabString(["mattran_m"]), new ScilabDouble([4]));
         model.in = new ScilabDouble([-1]);
@@ -8766,29 +8914,45 @@ function MATZCONJ() {
 }
 
 function MATZREIM() {
-    MATZREIM.prototype.get = function MATZREIM() {
+  MATZREIM.prototype.get = function MATZREIM() {
       var options= {
- 
          decomptyp : ["decomposition type (1=Complex2Real&Imag 2=Real&Imag2Complex)", sci2exp(1)]
       };  
       return options;  
     }
-
     MATZREIM.prototype.set = function MATZREIM() {
-       
-        //this.decomptyp = new Scilabdouble((arguments[0]["decomptyp"]));
+
         this.decomptyp = parseInt((arguments[0]["decomptyp"]));
-        this.function_name= parseInt((arguments[0]["function_name"]));
-        this.funtyp= new ScilabDouble([4]);
+        if (this.decomptyp==1) {
+           this.function_name="matz_reim";
+           this.x.model.in= new ScilabDouble([-1, -2]);
+           this.x.model.intyp = new ScilabDouble([2]);
+           this.x.model.out= new ScilabDouble([[-1,-2], [-1, -2]]);
+           this.x.model.outtyp= new ScilabDouble([1, 1]);
+        }
+        else{ 
+          if (this.decomptyp==2){
+             this.function_name="matz_reimc";
+             this.x.model.in= new ScilabDouble([[-1,-2], [-1, -2]]);
+             this.x.model.intyp = new ScilabDouble([1, 1]);
+             this.x.model.out= new ScilabDouble([-1,-2]);
+             this.x.model.outtyp= new ScilabDouble([2]);
+          } 
+          else{
+             message ="decomposition type is not supported";
+             document.write(message);
+          }
+        }
         this.x.model.sim = list(this.function_name, this.funtyp);
-        this.x.graphics.label = sci2exp(new ScilabDouble(1));
+        this.x.graphics.exprs = new ScilabDouble([sci2exp(this.decomptyp)]);
         return new BasicBlock(this.x);
     }
     MATZREIM.prototype.define = function MATZREIM() {
         var model = scicos_model();
-        
+        this.decomptyp= 1;
         this.function_name = "matz_reim";
         this.funtyp = new ScilabDouble([4]);
+
         model.sim = list(this.function_name, this.funtyp);
         model.in = new ScilabDouble([-1]);
         model.in2 = new ScilabDouble([-2]);
@@ -13402,9 +13566,7 @@ function ZCROSS_f() {
 
     ZCROSS_f.prototype.get = function ZCROSS_f() {
        var options= {
-  
           in: ["Input size", sci2exp(this.in)]
-
        };
        return options;
     }
