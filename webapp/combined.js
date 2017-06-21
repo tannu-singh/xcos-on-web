@@ -1011,7 +1011,23 @@ function CANIMXY3D() {
 
 }
 function Capacitor() {
-
+    Capacitor.prototype.get = function Capacitor() {
+      var options={
+        C: ["C (F)", [this.C]],
+        v: ["Initial Voltage",[this.v]]
+      };
+      return options;
+    }
+    Capacitor.prototype.set = function Capacitor() {
+        
+        var C= parseFloat((arguments[0]["C"]));
+        var v= parseInt((arguments[0]["v"]));
+        this.x.model.rpar = new ScilabDouble([C],[v]);
+        this.x.model.sim = new ScilabString(["Capacitor"]);        
+        this.x.model.equations.parameters= list(new ScilabString(["C", "v"]), list(new ScilabDouble([C]), new ScilabDouble([v])), new ScilabDouble([0, 1]));
+        this.x.graphics.exprs = new ScilabString([C], [v]);
+        return new BasicBlock(this.x);
+    }
     Capacitor.prototype.define = function Capacitor() {
 
         var model = scicos_model();
@@ -1851,7 +1867,20 @@ function CONST() {
     }
 }
 function ConstantVoltage() {
-
+    ConstantVoltage.prototype.get = function ConstantVoltage() {
+      var options={
+        V: ["V (volt)", this.V]
+      };
+      return options;
+    }
+    ConstantVoltage.prototype.set = function ConstantVoltage() {  
+       
+        this.V= parseFloat((arguments[0]["V"]));
+        this.x.model.rpar= new ScilabDouble([this.V]);
+        this.x.model.equations.parameters= list(new ScilabString(["V"]), list(new ScilabDouble([this.V]))); 
+        this.x.graphics.exprs = new ScilabString([this.V]);
+        return new BasicBlock(this.x);
+    }
     ConstantVoltage.prototype.define = function ConstantVoltage() {
         this.V = 0.01;
 
@@ -5007,7 +5036,26 @@ function DIFF_f() {
 }
 
 function Diode() {
+    Diode.prototype.get = function Diode() {
+      var options={
+        Ids: ["Saturation cuurent (A)", this.Ids],
+        Vt: ["Voltage equivalent to temperature (Volt)", this.Vt],
+        Maxexp: ["Max exponent for linear continuation", this.Maxexp],
+        R: ["R (ohm)", this.R]
+      };
+      return options;
+    }
+    Diode.prototype.set = function Diode() {
 
+        this.Ids= parseFloat((arguments[0]["Ids"]));
+        this.Vt= parseFloat((arguments[0]["Vt"]));
+        this.Maxexp= parseInt((arguments[0]["Maxexp"]));
+        this.R= parseFloat((arguments[0]["R"]));
+        this.x.model.rpar= new ScilabDouble([this.Ids], [this.Vt], [this.Maxexp], [this.R]);
+        this.x.model.equations.parameters= list(new ScilabString(["Ids", "Vt", "Maxexp", "R"]), list(new ScilabDouble([this.Ids]), new ScilabDouble([this.Vt]), new ScilabDouble([this.Maxexp]), new ScilabDouble([this.R])));
+        this.x.graphics.exprs= new ScilabString([this.Ids], [this.Vt], [this.Maxexp], [this.R]); 
+        return new BasicBlock(this.x);
+    }
     Diode.prototype.define = function Diode() {
 
         this.Ids = 1.e-6;
@@ -7366,7 +7414,19 @@ function IFTHEL_f() {
     }
 }
 function Inductor() {
-
+    Inductor.prototype.get = function Inductor() {
+      var options= {
+        L: ["L (H)", this.L]
+      };
+      return options;
+    }
+    Inductor.prototype.set = function Inductor() {
+        this.L = parseFloat((arguments[0]["L"]));
+        this.x.model.rpar = new ScilabDouble([this.L.toExponential(1)]);
+        this.x.model.equations.parameters= list(new ScilabString(["L"]), list(new ScilabDouble([this.L.toExponential(1)])));
+        this.x.graphics.exprs = new ScilabString([this.L]);
+        return new BasicBlock(this.x);
+    }
     Inductor.prototype.define = function Inductor() {
         this.L = 1.0E-5;
 
@@ -9515,7 +9575,34 @@ function NEGTOPOS_f() {
     }
 }
 function NMOS() {
-
+    NMOS.prototype.get = function NMOS() {
+      var options={
+        W: ["Width [m]", this.W], 
+        L: ["Length [m]", this.L],
+        Beta: ["Transconductance parameter [A/(V*V)]", this.Beta],
+        Vt: ["Zero bias threshold voltage [V]", this.Vt],
+        K2: ["Bulk threshold parameter", this.K2],
+        K5: ["Reduction of pinch-off region", this.K5],
+        dW: ["Narrowing of channel [m]", this.dW],
+        dL: ["Shortening of channel [m]", this.dL],
+        RDS: ["Drain-Source-Resistance [Ohm]", this.RDS]
+      };
+      return options;
+    }
+    NMOS.prototype.set = function NMOS() {
+        this.W= parseFloat((arguments[0]["W"]));
+        this.L= parseFloat((arguments[0]["L"]));
+        this.Beta= parseFloat((arguments[0]["Beta"]));
+        this.Vt= parseFloat((arguments[0]["Vt"]));
+        this.K2= parseFloat((arguments[0]["K2"]));
+        this.K5= parseFloat((arguments[0]["K5"]));
+        this.dW= parseFloat((arguments[0]["dW"]));
+        this.dL= parseFloat((arguments[0]["dL"]));
+        this.RDS= parseFloat((arguments[0]["RDS"]));
+        this.x.model.equations.parameters= list(new ScilabString(["W"], ["L"], ["Beta"], ["Vt"], ["K2"], ["K5"], ["dW"], ["dL"], ["RDS"]), new ScilabDouble([this.W], [this.L], [this.Beta], [this.Vt], [this.K2], [this.K5], [this.dW], [this.dL], [this.RDS]));
+        this.x.graphics.exprs = new ScilabString([this.W], [this.L], [this.Beta], [this.Vt], [this.K2], [this.K5], [this.dW], [this.dL], [this.RDS]);
+        return new BasicBlock(this.x);
+    }
     NMOS.prototype.define = function NMOS() {
         this.W = 20.e-6;
         this.L = 6.e-6;
@@ -9555,7 +9642,52 @@ function NMOS() {
 }
 
 function NPN() {
-
+    NPN.prototype.get = function NPN() {
+      var options={
+        Bf: ["Bf  : Forward beta", 50],
+        Br: ["Br  : Reverse beta", 0.1],
+        Is: ["Is  : Transport saturation current", 0],
+        Vak: ["Vak : Early voltage (inverse), 1/Volt", 0.02],
+        Tauf: ["Tauf: Ideal forward transit time", 1.200e-10],
+        Taur: ["Taur: Ideal reverse transit time", 5.000e-12],
+        Ccs: ["Ccs : Collector-substrat(ground) cap.",1.000e-12],
+        Cje: ["Cje : Base-emitter zero bias depletion cap.",4.000e-13],
+        Cjc: ["Cjc : Base-coll. zero bias depletion cap.",5.000e-13],
+        Phie: ["Phie: Base-emitter diffusion voltage",0.8],
+        Me: ["Me  : Base-emitter gradation exponent",0.4],
+        Phic: ["Phic: Base-collector diffusion voltage",0.8],
+        Mc: ["Mc  : Base-collector gradation exponent",0.333],
+        Gbc: ["Gbc : Base-collector conductance",1.000e-15],
+        Gbe: ["Gbe : Base-emitter conductance",1.000e-15],
+        Vt: ["Vt  : Voltage equivalent of temperature",0.02585],
+        EMinMax: ["EMinmax: if x > EMinMax, the exp(x) is linearized",40]
+      };
+      return options;
+    }
+    NPN.prototype.set = function NPN() {
+       this.PrametersValue = [[50], [0.1], [0], [0.02], [1.200e-10], [5.000e-09], [1.000e-12], [4.000e-13], [5.000e-13], [0.8], [0.4], [0.8], [0.333], [1.000e-15], [1.000e-15], [0.02585], [40]];
+       this.ParametersName = [["Bf"], ["Br"], ["Is"], ["Vak"], ["Tauf"], ["Taur"], ["Ccs"], ["Cje"], ["Cjc"], ["Phie"], ["Me"], ["Phic"], ["Mc"], ["Gbc"], ["Gbe"], ["Vt"], ["EMinMax"]];
+       this.Bf= parseInt((arguments[0]["Bf"]));
+       this.Br= parseFloat((arguments[0]["Br"]));
+       this.Is= parseInt((arguments[0]["Is"]));
+       this.Vak= parseFloat((arguments[0]["Vak"]));
+       this.Tauf= parseFloat((arguments[0]["Tauf"]));
+       this.Taur= parseFloat((arguments[0]["Taur"]));
+       this.Ccs= parseFloat((arguments[0]["Ccs"]));
+       this.Cje= parseFloat((arguments[0]["Cje"]));
+       this.Cjc= parseFloat((arguments[0]["Cjc"]));
+       this.Phie= parseFloat((arguments[0]["Phie"]));
+       this.Me= parseFloat((arguments[0]["Me"]));
+       this.Phic= parseFloat((arguments[0]["Phic"]));
+       this.Mc= parseFloat((arguments[0]["Mc"]));
+       this.Gbc= parseFloat((arguments[0]["Gbc"]));
+       this.Gbe= parseFloat((arguments[0]["Gbe"]));
+       this.Vt= parseFloat((arguments[0]["Vt"]));
+       this.EMinMax= parseInt((arguments[0]["EMinMax"]));
+       this.x.model.equations.parameters= list(new ScilabString(...this.ParametersName), new ScilabDouble(...this.PrametersValue), new ScilabDouble(...zeros(this.ParametersName)));
+       this.x.graphics.exprs = new ScilabString(["50"], ["0.1"], ["1.e-16"], ["0.02"], ["0.12e-9"], ["5e-9"], ["1e-12"], ["0.4e-12"], ["0.5e-12"], ["0.8"], ["0.4"], ["0.8"], ["0.333"], ["1e-15"], ["1e-15"], ["0.02585"], ["40"]);
+        return new BasicBlock(this.x);
+    }
     NPN.prototype.define = function NPN() {
         this.ModelName = "NPN";
         this.PrametersValue = [[50], [0.1], [0], [0.02], [1.200e-10], [5.000e-09], [1.000e-12], [4.000e-13], [5.000e-13], [0.8], [0.4], [0.8], [0.333], [1.000e-15], [1.000e-15], [0.02585], [40]];
@@ -11155,7 +11287,19 @@ function RELAY_f() {
 }
 
 function Resistor() {
-
+    Resistor.prototype.get = function Resistor() {
+      var options={
+        R: ["R (ohm)", this.R]
+      };
+      return options;
+    }
+    Resistor.prototype.set = function Resistor() {
+        this.R= parseFloat((arguments[0]["R"]));
+        this.x.model.rpar = new ScilabDouble([this.R]);
+        this.x.model.equations.parameters= list(new ScilabString(["R"]), list(new ScilabDouble([this.R])));
+        this.x.graphics.exprs = new ScilabString([this.R]);
+        return new BasicBlock(this.x);
+    }
     Resistor.prototype.define = function Resistor() {
         this.R = 0.01;
 
@@ -11225,10 +11369,29 @@ function RFILE_f() {
 }
 function RICC() {
 
+    RICC.prototype.get = function RICC() {
+      var options={
+        tpe: ["Type (1=Cont  2=Disc)", sci2exp(this.tpe)],
+        mod: ["Model(1=Schr  2=sign(cont) inv(disc))", sci2exp(this.mod)]
+      };
+      return options;
+    }
+    RICC.prototype.set = function RICC() {
+         
+        this.tpe= parseInt((arguments[0]["tpe"]));
+        this.mod= parseInt((arguments[0]["mod"]));
+        this.x.model.ipar = new ScilabDouble([this.tpe], [this.mod]);
+        this.x.model.intyp = new ScilabDouble([1, 1, 1]);
+        this.x.model.outtyp = new ScilabDouble([1]);
+        this.x.graphics.exprs= new ScilabString([sci2exp(this.tpe)], [sci2exp(this.mod)]);
+        return new BasicBlock(this.x);
+
+    }
     RICC.prototype.define = function RICC() {
         this.function_name = "ricc_m";
         this.funtyp = 4;
-
+        this.tpe= 1;
+        this.mod= 1;
         var model = scicos_model();
         model.sim = list(new ScilabString([this.function_name]), new ScilabDouble([this.funtyp]));
         model.in = new ScilabDouble([-1], [-1], [-1]);
@@ -11259,10 +11422,46 @@ function RICC() {
 }
 
 function ROOTCOEF() {
+    ROOTCOEF.prototype.get = function ROOTCOEF() {
+      var options={
+        typ: ["Datatype(1=real double  2=Complex)", sci2exp(this.typ)],
+        inp: ["input row size", sci2exp(this.inp)]
+      };
+      return options;
+    }
 
+    ROOTCOEF.prototype.set = function ROOTCOEF() {
+
+        this.typ= parseInt((arguments[0]["typ"]));
+        this.inp= parseInt((arguments[0]["inp"]));
+        this.funtyp = 4;
+        if(this.typ==1)
+        {
+           this.function_name= "root_coef";
+           this.x.model.intyp = new ScilabDouble([1]);
+           this.x.model.outtyp = new ScilabDouble([1]);
+        }
+        else{
+         if(this.typ==2){
+           this.function_name= "rootz_coef"
+           this.x.model.intyp = new ScilabDouble([2]);
+           this.x.model.outtyp = new ScilabDouble([2]);
+         }
+         else{
+               message= "Datatype is not supported";
+               document.write(message);
+             }} 
+        this.x.model.in= new ScilabDouble([this.inp], [this.x.model.in2]);
+        this.x.model.out= new ScilabDouble([this.inp+1], [this.x.model.out2]);
+        this.x.model.sim = list(new ScilabString([this.function_name]), new ScilabDouble([this.funtyp]));
+        this.x.graphics.exprs= new ScilabString([sci2exp(this.typ)], [sci2exp(this.inp)]);
+        return new BasicBlock(this.x);
+    }
     ROOTCOEF.prototype.define = function ROOTCOEF() {
         this.function_name = "root_coef";
         this.funtyp = 4;
+        this.typ= 1;
+        this.inp= 1;
 
         var model = scicos_model();
         model.sim = list(new ScilabString([this.function_name]), new ScilabDouble([this.funtyp]));
@@ -11936,7 +12135,27 @@ function SINBLK_f() {
 }
 
 function SineVoltage() {
-
+    SineVoltage.prototype.get = function SineVoltage() {
+      var options= {
+        V: ["Amplitude (Volt)", this.V],
+        ph: ["phase (rad)", this.ph],        
+        frq: ["Frequency (Hz)", this.frq],
+        offset: ["Voltageoffset (V)", this.offset],
+        start: ["Timeoffset (s)", this.start]
+      };
+      return options;
+    }
+    SineVoltage.prototype.set = function SineVoltage() {
+        this.V = parseInt((arguments[0]["V"]));
+        this.ph= parseInt((arguments[0]["ph"]));
+        this.frq= parseInt((arguments[0]["frq"]));
+        this.offset= parseInt((arguments[0]["offset"]));
+        this.start= parseInt((arguments[0]["start"]));
+        this.x.model.rpar = new ScilabDouble([this.V], [this.ph], [this.frq], [this.offset], [this.start]);
+        this.x.model.equations.parameters= list(new ScilabString(["V"], ["phase"], ["freqHz"], ["offset"], ["startTime"]), list(new ScilabDouble([this.V]), new ScilabDouble([this.ph]), new ScilabDouble([this.frq]), new ScilabDouble([this.offset]), new ScilabDouble([this.start])));
+        this.x.graphics.exprs = new ScilabString([this.V], [this.ph], [this.frq], [this.offset], [this.start]);
+        return new BasicBlock(this.x);
+    }
     SineVoltage.prototype.define = function SineVoltage() {
         var model = scicos_model();
         model.in = new ScilabDouble([1]);
@@ -12616,10 +12835,78 @@ function STEP_FUNCTION() {
     }
 }
 function SUBMAT() {
+    SUBMAT.prototype.get = function SUBMAT() {
+      var options={
+        typ: ["Datatype (1=real double  2=Complex)", sci2exp(this.typ)],
+        a: ["Starting Row Index", sci2exp(this.a)],
+        b: ["Ending Row Index", sci2exp(this.b)],
+        c: ["Starting Column Index", sci2exp(this.c)],
+        d: ["Ending Column Index", sci2exp(this.d)],
+        inp: ["Input Dimensions", this.inp.toString().replace(/,/g, " ")]
+      };
+      return options;
+    }
 
+    SUBMAT.prototype.set = function SUBMAT() {
+      
+        this.typ= parseInt((arguments[0]["typ"]));
+        this.a= parseInt((arguments[0]["a"])); 
+        this.b= parseInt((arguments[0]["b"]));
+        this.c= parseInt((arguments[0]["c"]));
+        this.d= parseInt((arguments[0]["d"]));
+        this.inp= inverse(arguments[0]["inp"]);
+        if(this.typ==1)
+        {
+           this.function_name= "submat";
+           this.x.model.intyp = new ScilabDouble([1]);
+           this.x.model.outtyp = new ScilabDouble([1]);
+        }
+        else{
+         if(this.typ==2){
+           this.function_name= "submatz"
+           this.x.model.intyp = new ScilabDouble([2]);
+           this.x.model.outtyp = new ScilabDouble([2]);
+         }
+         else{
+               message= "Datatype is not supported";
+               document.write(message);
+             }}         
+        if ((this.a<=0) || (this.b<=0) || (this.c<=0) || (this.d<=0)){
+               mess= "Invalid Index!";
+               document.write(mess); 
+        }
+        if(this.b< this.a){
+           mess1= "ending row must be greater than starting row";
+           document.write(mess1);
+        }
+        if(this.d< this.c){
+           mess2= "ending column must be greater than starting column";
+           document.write(mess2);
+        }
+        if(this.b> this.inp[1]){
+           mess3= "index of ending row is out of range";
+           document.write(mess3);
+        }
+        if(this.d > this.inp[2]){   
+           mess4= "index of ending column is out of range";
+           document.write(mess4);
+        }       
+        this.x.model.ipar = new ScilabDouble([this.a], [this.b], [this.c], [this.d]);
+        this.x.model.in = new ScilabDouble([this.inp[1]], [this.inp[2]]);
+        this.x.model.out = new ScilabDouble([(this.b- this.a)+1],  [(this.d-this.c)+1]);
+        this.x.graphics.exprs= new ScilabString([sci2exp(this.typ)], [sci2exp(this.a)], [sci2exp(this.b)], [sci2exp(this.c)], [sci2exp(this.d)], [this.inp.toString().replace(/,/g, " ")]);
+        this.x.model.sim = list(this.function_name, this.funtyp);
+    }
     SUBMAT.prototype.define = function SUBMAT() {
         var model = scicos_model();
 
+        this.function_name = new ScilabString(["submat"]);
+        this.typ= 1;
+        this.a= 1;
+        this.b= 1;
+        this.c= 1;
+        this.d= 1;
+        this.inp= [[1], [1]];
         this.function_name = new ScilabString(["submat"]);
 
         this.funtyp = new ScilabDouble([4]);
@@ -12773,7 +13060,21 @@ function SUPER_f() {
     }
 }
 function Switch() {
-	
+    Switch.prototype.get = function Switch() {
+      var options= {
+        Ron: ["Resistance in On state (Ohm)", this.Ron],
+        Roff: ["Resistance in Off state (Ohm)", this.Roff]
+      };
+      return options;
+    }
+    Switch.prototype.set = function Switch() {
+       
+        this.Ron= parseFloat((arguments[0]["Ron"]));
+        this.Roff= parseFloat((arguments[0]["Roff"]));
+        this.x.model.equations.parameters= list(new ScilabString(...this.S), new ScilabDouble(...this.Z));
+        this.x.graphics.exprs= new ScilabString(...this.Z);
+        return new BasicBlock(this.x);    
+    }	
     Switch.prototype.define = function Switch() {
         var model = scicos_model();
 
@@ -13417,7 +13718,20 @@ function VsourceAC() {
     }
 }
 function VVsourceAC() {
-	
+    VVsourceAC.prototype.get = function VVsourceAC() {	
+      var options={
+        FR: ["Frequency (Hz)", this.FR]
+      };
+      return options;
+    }
+    VVsourceAC.prototype.set = function VVsourceAC() {
+        
+        this.FR= parseInt((arguments[0]["FR"]));
+        this.x.model.rpar = new ScilabDouble([this.FR]);
+        this.x.model.equations.parameters = list(new ScilabString(["f"]), list(new ScilabDouble([this.FR])));
+        this.x.graphics.exprs = new ScilabString([this.FR]);
+        return new BasicBlock(this.x);
+    }
     VVsourceAC.prototype.define = function VVsourceAC() {
         var model = scicos_model();
         
